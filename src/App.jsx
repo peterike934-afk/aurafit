@@ -1,5 +1,6 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { AnimatePresence } from "framer-motion"
+import { supabase } from "./lib/supabase"
 import PageTransition from "./components/PageTransition"
 import MobileNav from "./components/MobileNav"
 import Landing from "./pages/Landing"
@@ -10,8 +11,22 @@ import History from "./pages/History"
 import Profile from "./pages/Profile"
 
 export default function App() {
-  const [page, setPage] = useState("upload")
+  const [page, setPage] = useState("landing")
   const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null)
+      if (session?.user) setPage("dashboard")
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+      if (!session?.user) setPage("landing")
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
 
   function onNavigate(p) {
     setPage(p)

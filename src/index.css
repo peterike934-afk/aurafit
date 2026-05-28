@@ -133,3 +133,8 @@ img { display: block; max-width: 100%; }
     padding-bottom: 80px;
   }
 }
+
+/* Prevent iOS input zoom */
+input, select, textarea {
+  font-size: 16px !important;
+}
