@@ -1,0 +1,154 @@
+/* ── LOADING SKELETONS ───────────────────────────────────── */
+.history-loading {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--s3);
+}
+
+.history-skeleton {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.history-skeleton__img {
+  aspect-ratio: 3/4;
+  background: linear-gradient(90deg, var(--surface) 25%, var(--surface-2) 50%, var(--surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite;
+}
+
+.history-skeleton__info {
+  padding: var(--s2);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.history-skeleton__line {
+  height: 10px;
+  background: linear-gradient(90deg, var(--surface) 25%, var(--surface-2) 50%, var(--surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite;
+}
+.history-skeleton__line--short { width: 55%; }
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── GRID ────────────────────────────────────────────────── */
+.history-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--s3);
+}
+
+/* ── CARD ────────────────────────────────────────────────── */
+.history-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color var(--t), transform var(--t) var(--ease);
+  animation: fadeUp 0.4s var(--ease) both;
+}
+.history-card:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+
+.history-img-wrap {
+  position: relative;
+  aspect-ratio: 3/4;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+.history-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+  transition: transform var(--t-slow) var(--ease);
+}
+.history-card:hover .history-img { transform: scale(1.04); }
+
+/* Score badge */
+.history-score {
+  position: absolute;
+  bottom: var(--s2); left: var(--s2);
+  background: rgba(10,10,10,0.88);
+  color: var(--gold);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px;
+  font-weight: 300;
+  padding: 3px 10px;
+  border: 1px solid rgba(201,169,110,0.3);
+  backdrop-filter: blur(6px);
+  letter-spacing: 0.04em;
+}
+
+/* Hover overlay with "View" */
+.history-img-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(10,10,10,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity var(--t);
+}
+.history-card:hover .history-img-overlay { opacity: 1; }
+.history-img-overlay span {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--white);
+  border: 1px solid rgba(255,255,255,0.4);
+  padding: 8px 20px;
+}
+
+/* Card info */
+.history-info {
+  padding: var(--s2) var(--s2);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-top: 1px solid var(--border);
+}
+
+.history-occasion {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--white-mid);
+}
+
+.history-date {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .history-grid,
+  .history-loading {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--s2);
+  }
+}
+
+@media (max-width: 380px) {
+  .history-grid,
+  .history-loading { grid-template-columns: 1fr; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
