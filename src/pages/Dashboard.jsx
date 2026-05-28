@@ -1,6 +1,8 @@
+import { useState, useEffect } from "react"
+import { motion } from "framer-motion"
+import { supabase } from "../lib/supabase"
 import "./Dashboard.css"
 
-// ── Nav Icons ─────────────────────────────────────────────
 const IconDashboard = () => (
   <svg className="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
     <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
@@ -31,89 +33,139 @@ const IconSignOut = () => (
     <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
   </svg>
 )
-const IconEmpty = () => (
-  <svg width="40" height="40" className="dash-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z"/>
-  </svg>
-)
 
-// ── Sidebar ───────────────────────────────────────────────
-function Sidebar({ active, onNavigate }) {
-  const items = [
-    { label: "Dashboard", page: "dashboard", Icon: IconDashboard },
-    { label: "New Outfit", page: "upload",    Icon: IconUpload    },
-    { label: "My Outfits", page: "history",   Icon: IconHistory   },
-    { label: "Profile",    page: "profile",   Icon: IconProfile   },
-  ]
-  return (
-    <aside className="dash-sidebar">
-      <span className="dash-logo">AURAFIT</span>
-      <nav className="dash-nav">
-        {items.map(({ label, page, Icon }) => (
-          <button
-            key={page}
-            className={`dash-nav-item${active === page ? " dash-nav-item--active" : ""}`}
-            onClick={() => onNavigate(page)}
-          >
-            <Icon />
-            {label}
-          </button>
-        ))}
-      </nav>
-      <div className="dash-sidebar-footer">
-        <button className="dash-signout" onClick={() => onNavigate("landing")}>
-          <IconSignOut />
-          Sign Out
-        </button>
-      </div>
-    </aside>
-  )
-}
-
-// ── Dashboard ─────────────────────────────────────────────
 export default function Dashboard({ onNavigate, user }) {
-  const firstName = user?.user_metadata?.full_name?.split(" ")[0] ?? "there"
+  const [outfits, setOutfits] = useState([])
+  const [stats, setStats]     = useState({ total: 0, avgScore: 0, topStyle: "—" })
+  const [loading, setLoading] = useState(true)
+
+  const name = user?.user_metadata?.full_name?.split(" ")[0] || "there"
+
+  useEffect(() => {
+    async function fetchData() {
+      if (!user) { setLoading(false); return }
+      const { data } = await supabase
+        .from("outfits")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(4)
+
+      if (data) {
+        setOutfits(data)
+        const scores = data.filter(o => o.style_score).map(o => o.style_score)
+        const avg = scores.length
+          ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1)
+          : 0
+        setStats({ total: data.length, avgScore: avg, topStyle: data[0]?.occasion || "—" })
+      }
+      setLoading(false)
+    }
+    fetchData()
+  }, [user])
 
   return (
     <div className="dashboard">
-      <Sidebar active="dashboard" onNavigate={onNavigate} />
+      <aside className="dash-sidebar">
+        <span className="dash-logo">AURAFIT</span>
+        <nav className="dash-nav">
+          <button className="dash-nav-item dash-nav-item--active">
+            <IconDashboard />Dashboard
+          </button>
+          <button className="dash-nav-item" onClick={() => onNavigate("upload")}>
+            <IconUpload />New Outfit
+          </button>
+          <button className="dash-nav-item" onClick={() => onNavigate("history")}>
+            <IconHistory />My Outfits
+          </button>
+          <button className="dash-nav-item" onClick={() => onNavigate("profile")}>
+            <IconProfile />Profile
+          </button>
+        </nav>
+        <div className="dash-sidebar-footer">
+          <button className="dash-signout" onClick={() => onNavigate("landing")}>
+            <IconSignOut />Sign Out
+          </button>
+        </div>
+      </aside>
 
       <main className="dash-main">
         <div className="dash-header">
           <div>
-            <p className="dash-eyebrow">Welcome back{user ? `, ${firstName}` : ""}</p>
-            <h2 className="dash-heading">Style Dashboard</h2>
+            <p className="dash-eyebrow">Welcome back, {name}</p>
+            <h2 className="dash-heading">Your Style Dashboard</h2>
           </div>
           <button className="btn-primary" onClick={() => onNavigate("upload")}>
             + New Outfit
           </button>
         </div>
 
+        {/* STATS */}
         <div className="dash-stats">
-          <div className="dash-stat-card">
-            <span className="dash-stat-number">0</span>
-            <span className="dash-stat-label">Outfits Analyzed</span>
-          </div>
-          <div className="dash-stat-card">
-            <span className="dash-stat-number">—</span>
-            <span className="dash-stat-label">Avg Style Score</span>
-          </div>
-          <div className="dash-stat-card">
-            <span className="dash-stat-number">0</span>
-            <span className="dash-stat-label">Saved Outfits</span>
-          </div>
+          {[
+            { number: stats.total, label: "Outfits Analyzed" },
+            { number: stats.avgScore || "—", label: "Avg Style Score" },
+            { number: stats.total > 0 ? `${Math.round((stats.avgScore / 10) * 100)}%` : "—", label: "Style Rating" },
+          ].map((stat, i) => (
+            <motion.div key={i} className="dash-stat-card"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: i * 0.1 }}>
+              <span className="dash-stat-number">{stat.number}</span>
+              <span className="dash-stat-label">{stat.label}</span>
+            </motion.div>
+          ))}
         </div>
 
-        <p className="dash-section-label">Recent Outfits</p>
-
-        <div className="dash-empty">
-          <IconEmpty />
-          <h3>No outfits yet</h3>
-          <p>Upload your first outfit to get AI-powered style feedback and scoring.</p>
-          <button className="btn-primary" style={{ marginTop: "8px" }} onClick={() => onNavigate("upload")}>
-            Upload Outfit
-          </button>
-        </div>
+        {/* RECENT OUTFITS */}
+        {loading ? (
+          <div className="dash-skeleton-grid">
+            {[1,2,3,4].map(i => (
+              <div key={i} className="dash-skeleton" />
+            ))}
+          </div>
+        ) : outfits.length === 0 ? (
+          <div className="dash-empty">
+            <p className="dash-empty-icon">◈</p>
+            <h3>No outfits yet</h3>
+            <p>Upload your first outfit to get AI-powered style feedback.</p>
+            <button className="btn-primary" onClick={() => onNavigate("upload")}>
+              Upload Outfit
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="dash-recent-header">
+              <p className="dash-section-label">Recent Outfits</p>
+              <button className="btn-text" onClick={() => onNavigate("history")}>
+                View All →
+              </button>
+            </div>
+            <div className="dash-recent-grid">
+              {outfits.map((outfit, i) => (
+                <motion.div key={outfit.id} className="dash-recent-card"
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: i * 0.08 }}>
+                  <div className="dash-recent-img-wrap">
+                    <img src={outfit.image_url} alt="Outfit" className="dash-recent-img" />
+                    {outfit.style_score && (
+                      <span className="dash-recent-score">{outfit.style_score}/10</span>
+                    )}
+                  </div>
+                  <div className="dash-recent-info">
+                    <p className="dash-recent-occasion">{outfit.occasion || "Any occasion"}</p>
+                    <p className="dash-recent-date">
+                      {new Date(outfit.created_at).toLocaleDateString("en-US", {
+                        month: "short", day: "numeric"
+                      })}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </>
+        )}
       </main>
     </div>
   )

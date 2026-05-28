@@ -2,6 +2,7 @@ import { useState, useRef } from "react"
 import { analyzeOutfit } from "../lib/gemini"
 import { supabase } from "../lib/supabase"
 import "./Upload.css"
+import FeedbackCard from "../components/FeedbackCard"
 
 const OCCASIONS  = ["any","casual","work","formal","date night","gym","beach","party"]
 const BODY_TYPES = ["any","slim","athletic","average","curvy","plus size"]
@@ -144,8 +145,9 @@ export default function Upload({ onNavigate, user }) {
       const { data: { publicUrl } } = supabase.storage
         .from("outfits").getPublicUrl(fileName)
 
-      const scoreMatch = feedback.match(/(\d+)\/10/)
-      const score = scoreMatch ? parseInt(scoreMatch[1]) : null
+     const score = feedback.scores?.overallStyle
+  ? Math.round(feedback.scores.overallStyle)
+  : null
 
       const { error: dbError } = await supabase.from("outfits").insert({
         user_id: user?.id, image_url: publicUrl,
@@ -271,34 +273,17 @@ export default function Upload({ onNavigate, user }) {
                 onClick={handleAnalyze} disabled={images.length === 0}>
                 Analyze Outfit
               </button>
-            ) : (
-              <div className="feedback-box">
-                <div className="feedback-header">
-                  <p className="feedback-label">AI Feedback</p>
-                </div>
-                <div className="feedback-content">
-                  {feedback.split("\n").map((line, i) => (
-                    <p key={i}
-                      className={line.startsWith("#") || line.startsWith("**")
-                        ? "feedback-title" : "feedback-line"}>
-                      {line.replace(/^#+\s*/, "").replace(/\*\*/g, "")}
-                    </p>
-                  ))}
-                </div>
-                <div className="feedback-actions">
-                  <button className="btn-primary upload-btn"
-                    onClick={handleSave} disabled={isSaved}>
-                    {isSaved ? "✓ Saved to Wardrobe" : "Save Outfit"}
-                  </button>
-                  <button className="btn-ghost upload-btn" onClick={handleReset}>
-                    Analyze Another
-                  </button>
-                </div>
-              </div>
+           ) : (
+              <FeedbackCard
+                feedback={feedback}
+                onSave={handleSave}
+                onReset={handleReset}
+                isSaved={isSaved}
+              />
             )}
-          </div>
+            </div>
         </div>
-      </main>
+        </main>
     </div>
-  )
+    )
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { supabase } from "../lib/supabase"
 import "./History.css"
+import { motion } from "framer-motion"
 
 // ── Icons ─────────────────────────────────────────────────
 const IconDashboard = () => (
@@ -135,8 +136,12 @@ export default function History({ onNavigate, user }) {
         ) : (
           <div className="history-grid">
             {outfits.map((outfit, i) => (
-              <div key={outfit.id} className="history-card"
-                style={{ animationDelay: `${i * 0.04}s` }}>
+              <motion.div
+  key={outfit.id}
+  className="history-card"
+  initial={{ opacity: 0, y: 16 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.3, delay: i * 0.08 }}>
                 <div className="history-img-wrap">
                   <img src={outfit.image_url} alt="Outfit" className="history-img" />
                   {outfit.style_score && (
@@ -154,7 +159,7 @@ export default function History({ onNavigate, user }) {
                     })}
                   </p>
                 </div>
-              </div>
+             </motion.div>
             ))}
           </div>
         )}

@@ -1,0 +1,189 @@
+.feedback-card {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 32px;
+}
+
+/* HEADER */
+.fc-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--border);
+}
+
+.fc-score-circle {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 1px solid var(--gold);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  gap: 2px;
+}
+
+.fc-score-number {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--gold);
+  line-height: 1;
+}
+
+.fc-score-label {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.fc-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fc-style-identity {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 300;
+  color: var(--white);
+}
+
+.fc-vibe {
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.fc-occasion-tag {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  padding: 4px 10px;
+  align-self: flex-start;
+}
+
+/* SCORES */
+.fc-scores {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fc-score-row {
+  display: grid;
+  grid-template-columns: 130px 1fr 40px;
+  align-items: center;
+  gap: 16px;
+}
+
+.fc-score-name {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.fc-score-bar-wrap {
+  height: 2px;
+  background: var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.fc-score-bar {
+  height: 100%;
+  background: var(--gold);
+  transition: width 0.8s ease;
+}
+
+.fc-score-val {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--gold);
+  text-align: right;
+}
+
+/* SUMMARY */
+.fc-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fc-section-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.fc-summary-text {
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.8;
+  color: var(--white);
+}
+
+/* SUGGESTIONS */
+.fc-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fc-suggestion-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fc-suggestion-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--white);
+}
+
+.fc-suggestion-dot {
+  color: var(--gold);
+  font-size: 10px;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+/* ACTIONS */
+.fc-actions {
+  display: flex;
+  gap: 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+@media (max-width: 768px) {
+  .feedback-card { padding: 24px; }
+  .fc-header { flex-direction: column; align-items: flex-start; }
+  .fc-score-row { grid-template-columns: 110px 1fr 32px; }
+  .fc-actions { flex-direction: column; }
+  .fc-actions button { width: 100%; justify-content: center; }
+}

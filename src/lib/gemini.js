@@ -7,20 +7,31 @@ export async function analyzeOutfit(images, occasion = "any", bodyType = "any", 
     ? `The user describes their style intention as: "${styleIntent.trim()}". Factor this into your advice and build on their vision.`
     : "The user has not provided a style intention — give your best professional assessment."
 
-  const prompt = `You are a professional fashion stylist. Analyze the outfit shown in the image(s) and provide:
+  const prompt = `You are a professional fashion stylist. Analyze this outfit and respond ONLY in this exact JSON format, nothing else:
 
-1. Style Score (out of 10)
-2. Fit Assessment
-3. Color Coordination rating
-4. Occasion suitability ${occasion !== "any" ? `for ${occasion}` : ""}
-5. Vibe/Aesthetic (e.g. streetwear, minimalist, smart casual)
-6. Top 3 improvement suggestions
+{
+  "scores": {
+    "colorHarmony": 8.5,
+    "fitBalance": 7.0,
+    "occasionMatch": 9.0,
+    "overallStyle": 8.0
+  },
+  "styleIdentity": "Minimal Streetwear",
+  "vibe": "Clean, understated, urban confidence",
+  "occasion": "Casual · Smart Casual",
+  "suggestions": [
+    "Swap white sneakers for clean leather loafers to elevate the look.",
+    "Add a minimal silver watch to improve visual balance.",
+    "A lightweight overshirt would add layering depth without losing the minimal vibe."
+  ],
+  "summary": "A well-put-together outfit with strong color discipline and clean silhouette. Minor adjustments in footwear and accessories would push this to an exceptional level."
+}
 
 ${bodyType !== "any" ? `The person has a ${bodyType} body type — factor that into your advice.` : ""}
-
+${occasion !== "any" ? `Consider occasion suitability for: ${occasion}.` : ""}
 ${intentSection}
 
-Keep the tone encouraging, specific, and professional. Format your response clearly with each section labeled.`
+Return ONLY the JSON. No markdown, no explanation, no extra text.`
 
   const imageParts = images.map(img => ({
     inlineData: { mimeType: img.type, data: img.base64 }
@@ -38,5 +49,6 @@ Keep the tone encouraging, specific, and professional. Format your response clea
     ]
   })
 
-  return response.text
+  const text = response.text.replace(/```json|```/g, "").trim()
+  return JSON.parse(text)
 }
